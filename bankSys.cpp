@@ -20,9 +20,6 @@ public:
             if (accountNumber.length() != 16 || !all_of(accountNumber.begin(), accountNumber.end(), ::isdigit)) {
                 cout << "Invalid input! Account number must be exactly 16 digits.\n";
             } else {
-                // Check for duplicate account number before proceeding
-                ifstream checkFile("accounts.txt");
-                string line;
                 bool duplicate = false;
                 while (getline(checkFile, line)) {
                     stringstream ss(line);
@@ -34,20 +31,14 @@ public:
                     }
                 }
                 checkFile.close();
-                if (duplicate) {
-                    cout << "Error: Account number already exists. Please try again.\n";
-                    return;
-                }
-                break;
             }
         }
         cout << "\n" << "Enter Account Holder Name: ";
-        cin.ignore(); // clear newline character left in input buffer
+        cin.ignore();
         getline(cin, accountHolder);
         cout << "\n" << "Enter Initial Balance: ";
         cin >> balance;
         cout << "\n" << "Account Created Successfully!\n";
-        ofstream outFile("accounts.txt", ios::app);
         if (outFile.is_open()) {
             outFile << accountNumber << "," << accountHolder << "," << fixed << setprecision(2) << balance << "\n";
             outFile.close();
@@ -65,8 +56,7 @@ public:
 
     void deposit(double amount) {
         balance += amount;
-        cout << "₹" << fixed << setprecision(2) << amount << " Deposited. New Balance: ₹" << fixed << setprecision(2) << balance << "\n";
-        updateDatabase();
+        cout << "₹" << fixed << setprecision(2) << amount << " Deposited. New Balance: ₹" << fixed << setprecision(2) << balance << "\n";q
     }
 
     void withdraw(double amount) {
@@ -78,16 +68,9 @@ public:
             updateDatabase();
         }
     }
-
-    string getAccountNumber() const {
-        return accountNumber;
-    }
-
 private:
     void updateDatabase() const {
         ifstream inFile("accounts.txt");
-        ofstream tempFile("temp.txt");
-        string line;
         while (getline(inFile, line)) {
             stringstream ss(line);
             string accNo, name, bal;
@@ -109,7 +92,6 @@ private:
 
 int main() {
     const int MAX_ACCOUNTS = 100;
-    BankAccount accounts[MAX_ACCOUNTS];
     int totalAccounts = 0;
 
     int choice;
@@ -179,8 +161,6 @@ int main() {
                         break;
                     }
                 }
-                if (!found) cout << "Account not found!\n";
-                break;
             }
 
             case 4: {
@@ -238,12 +218,7 @@ int main() {
                         found = true;
                     }
                 }
-
-                inFile.close();
-                tempFile.close();
                 remove("accounts.txt");
-                rename("temp.txt", "accounts.txt");
-
                 if (found) {
                     cout << "Account " << accNo << " deleted successfully.\n";
                 } else {
@@ -251,7 +226,6 @@ int main() {
                 }
                 break;
             }
-
             case 7:
                 cout << "Exiting... Thank you!\n";
                 break;
